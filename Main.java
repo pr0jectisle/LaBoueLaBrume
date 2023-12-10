@@ -1,3 +1,9 @@
+import ddf.minim.spi.*;
+import ddf.minim.signals.*;
+import ddf.minim.*;
+import ddf.minim.analysis.*;
+import ddf.minim.ugens.*;
+import ddf.minim.effects.*;
 // CUSTOMIZABLE BELOW: (CHECK AGENT CLASS FOR ADVANCED COLLISION & SPAWN MECHANICS)
 
 // AGENT: agents that move on the canvas
@@ -5,9 +11,9 @@
 // Number of agents
 int numAgents = 2000;
 // Agent size
-float agentSize = 5;
+float agentSize = 1;
 // Agent speed :
-float speed = 3;
+float ogSpeed = 3;
 // Agent acceleration
 float acc = 0.00;
 
@@ -24,7 +30,8 @@ boolean correctAngle = true;
 // Phero threshold : min value for a pheromone to exist. (CUT TRAIL OFF)
 float pheroThreshold = 0.2;
 // Phero decay speed : speed at which pheromones (trails) will fade (SHORTEN TRAIL)
-float pheroDecay = 0.25;
+float ogPheroDecay = 0.25;
+float pheroDecay = ogPheroDecay;
 
 
 // SPAWN: spawn parameters for agents
@@ -41,8 +48,8 @@ boolean randomSpawn = false;
  - spiral: agents will spawn on a spiral (see agent class CUSTOMIZABLE to customize spiral) */
 String spawn = "corners";
 /* detail: "on" agents spawn on the edge of the circle defined by radius in the center
-        "in" agents spawn in the circle defined by radius (random pos in circle)
-        "off" agents spawn in the center of the environment */
+ "in" agents spawn in the circle defined by radius (random pos in circle)
+ "off" agents spawn in the center of the environment */
 String detail = "off";
 // Radius: radius of circle spawn
 int radius = 100;
@@ -50,7 +57,7 @@ int radius = 100;
 
 
 //CANVAS : define canvas in which agents move & bounce
- 
+
 //shape : shape of canvas : "square" or "circle"
 String shape = "circle";
 //pad : padding from the edge of the window to the edge of the canvas
@@ -64,17 +71,17 @@ boolean heads = false;
 // COLORS
 
 //background colour
-color bc = color(0, 0, 0);    
+color bc = color(0, 0, 0);
 //palette : palette of colours the agents will have
 color[] palette = {color(249, 0, 99), color(229, 78, 208), color(159, 69, 176), color(68, 0, 139), color(0, 7, 111)}; //Galaxy //color(249,0,99),color(255,228,242)
 /*colorChange : how agents choose colours whithin palette
-  - bounce : agents will change colors on bounce with canvas
-  - distance : agents will change colors based on distance from center
-  - else : agents will not change colors
-  */
+ - bounce : agents will change colors on bounce with canvas
+ - distance : agents will change colors based on distance from center
+ - else : agents will not change colors
+ */
 String colorChange = "bounce";
 //contour : color of front & end of trail
-color contour = color(0,0,0);
+color contour = color(0, 0, 0);
 
 // CLICK
 
@@ -86,7 +93,7 @@ boolean clickType = true;
 
 // RECORDING: recording parameters for saving frames
 
-boolean recording = false;     // Whether to record simulation
+boolean recording = true;     // Whether to record simulation
 int fr = 60;                   // Frame rate to record at
 int intro = 1;                 // Length of intro (seconds) (== background screen without agents)
 int outro = 1;                 // Length of outro (seconds) (== background screen without agents)
@@ -102,22 +109,91 @@ boolean horizontal = false;
 String angles = "sin";
 float scalor =2.5;
 
+//LABOUELABRUME : SOUND SYNC
+boolean sync = true;
+boolean txtFile = true;
+String source = "record";
+String audio = source + ".mp3";
+String txt = source + ".txt";
+
 // END OF CUSTOMIZABLE
 
 Canvas canvas;
 ArrayList<Agent> agents = new ArrayList<Agent>();
 ArrayList<Pheromone> pheromones = new ArrayList<Pheromone>();
+ArrayList<Agent[]> agentsSync = new ArrayList<Agent[]>();
 
-int age = 0;
-int lowestAge = 0;
+int out = (totalLength-outro)*fr;
+int top = (totalLength) * fr;
+
+int bands = 8;
+Sound sound;
+boolean[] st;
+boolean[] bandSpawn;
+float speedFac;
+boolean display = true;
+
+//Method choreography
+boolean choreography(int band) {
+  if (band == 0) {
+    mode = "alignment";
+    vertical = true;
+    horizontal = false;
+    angles = "sin";
+    collisionCenterDir = true;
+    palette = new color[]{color(255, 21, 134), color(97, 9, 170), color(159, 69, 176), color(68, 0, 139), color(0, 7, 111)};
+    colorChange = "distance";
+    shape = "circle";
+    pad = 150;
+    ogSpeed = 1;
+    agentSize = 5;
+    canvas = new Canvas(shape, pad);
+    return true;
+  } else if (band ==1) {
+    mode = "entropy";
+    spawn = "edges";
+    radius = 250;
+    palette = new color[]{  color(0, 0, 0), color(65, 65, 65), color(150, 150, 150)};
+    collisionCenterDir = false;
+    spawnCenterDir = true;
+    correctAngle = true;
+    ogSpeed = 5;
+    agentSize = 1;
+    colorChange = "distance";
+    shape = "circle";
+    pad = 0;
+    canvas = new Canvas(shape, pad);
+    return false;
+  } else if (band == 2) {
+    mode = "entropy";
+    spawn = "center";
+    radius = 250;
+    palette = new color[]{  color(0, 0, 0), color(65, 65, 65), color(150, 150, 150)};
+    collisionCenterDir = true;
+    spawnCenterDir = false;
+    correctAngle = true;
+    ogSpeed = 5;
+    agentSize = 1;
+    colorChange = "distance";
+    shape = "circle";
+    pad = 0;
+    canvas = new Canvas(shape, pad);
+    return false;
+  } else {
+    return false;
+  }
+}
 
 // Method spawn: method to spawn generation of agents given agent number, size, etc...
-void spawn() {
+void spawn(int band) {
   // Spawn new agents
   for (int i = 0; i < numAgents; i++) {
-    agents.add(new Agent(canvas, mode, randomSpawn, i, numAgents, collisionCenterDir, spawnCenterDir, correctAngle, speed, acc, agentSize, spawn, detail, radius, palette, contour, colorChange, vertical, horizontal, angles, scalor));
+    if (!sync) {
+      agents.add(new Agent(canvas, mode, randomSpawn, i, numAgents, collisionCenterDir, spawnCenterDir, correctAngle, ogSpeed, acc, agentSize, spawn, detail, radius, palette, contour, colorChange, vertical, horizontal, angles, scalor));
+    } else {
+      agentsSync.get(band)[i] = new Agent(canvas, mode, randomSpawn, i, numAgents, collisionCenterDir, spawnCenterDir, correctAngle, ogSpeed, acc, agentSize, spawn, detail, radius, palette, contour, colorChange, vertical, horizontal, angles, scalor);
+    }
   }
-  age++; // Increase age
 }
 
 // Simulation setup
@@ -127,34 +203,122 @@ void setup() {
   noStroke();
   rectMode(CENTER);
   if (spawnAtInit) {
-    spawn();
+    choreography(0);
+    spawn(-1);
   }
   println("Welcome");
   printRules();
-  printType(clickType);
-  if (recording) {
-    frameRate(fr);
+  if (sync) {
+
+    Minim minim = new Minim(this);
+    println("Audio  : " + audio);
+    AudioPlayer player = minim.loadFile(audio);
+    String input = audio;
+    if (txtFile) {
+      input = txt;
+    }
+    sound = new Sound(txtFile, input, bands, minim, player);
+    if (txtFile) {
+      bands = sound.bands;
+      this.fr = sound.fr;
+      out = sound.ampArray.length-1 - (outro*fr);
+      top = sound.ampArray.length-1;
+    }
+    for (int i=0; i<bands; i++) {
+      if (choreography(i)) {
+        agentsSync.add(new Agent[numAgents]);
+      }
+    }
+    st = new boolean[agentsSync.size()];
+
+    for (int i=0; i<st.length; i++) {
+      st[i] = false;
+    }
   }
 }
 
 // draw method: draws iteratively
 void draw() {
-  if (recording && frameCount == int(intro * fr)) { // Spawn setup for recording
-    spawn = "corners";
-    spawn();
+  if (recording && !sync && frameCount == int(intro * fr)) { // Spawn setup for recording
+    choreography(0);
+    spawn(0);
   }
   if (frameCount%50 == 0) {
     println("Iter: " + frameCount);
   }
   // Background color
   background(bc);
+  if (sync) {
+    sound.update(frameCount);
+    if (!txtFile) {
+      speedFac = sound.player.mix.level();
+    } else {
+      speedFac = sound.amp;
+    }
+    if (txtFile) {
+      speedFac = pow(speedFac, 2) * 1000000 * 2.5;
+      if (sound.pitch != 0) {
+        speedFac = max(speedFac, 0.1);
+      }
+    } else {
+      speedFac = pow(speedFac, 3) * 3000;
+    }
+
+    if (speedFac >= 1) {
+      print("|");
+      for (int i=0; i<sound.activated.length; i++) {
+        if (sound.activated[i]) {
+          print("1");
+        } else {
+          print("0");
+        }
+      }
+      print("| ");
+      print(sound.pitch + " Hz, ");
+      print(sound.onset);
+      print(" " + speedFac);
+      println("");
+    }
+
+    for (int i=0; i<st.length; i++) {
+      if (!st[i]) {
+        if (sound.started) {
+          choreography(i);
+          spawn(i);
+          st[i] = true;
+        }
+      }
+    }
+  }
+
 
   // Move agents, Display agents & add pheromones
-  for (int i = 0; i < agents.size(); i++) {
-    Agent a = agents.get(i);
-    pheromones.add(new Pheromone(a.pos.copy(), pheroDecay, a.acc, a.ac, a.pc,a.contour,a.colorChange, a.diff, a.size));
-    a.update();
-    a.show();
+
+  int numA = agents.size()-1;
+  if (sync) {
+    numA = numAgents-1;
+  }
+
+  for (int i = numA; i >= 0; i--) {
+    if (!sync) {
+      Agent a = agents.get(i);
+      pheromones.add(new Pheromone(a.pos.copy(), pheroDecay, a.acc, a.ac, a.pc, a.contour, a.colorChange, a.diff, a.size));
+      a.update();
+      a.show();
+    } else {
+      for (int j=0; j<st.length; j++) {
+        if (st[j]) {
+          Agent a = agentsSync.get(j)[i];
+          a.speed = a.ogSpeed * speedFac;
+          pheroDecay = max(ogPheroDecay, ogPheroDecay * speedFac);
+          if (display) {
+            pheromones.add(new Pheromone(a.pos.copy(), pheroDecay, a.acc, a.ac, a.pc, a.contour, a.colorChange, a.diff, a.size));
+            a.update();
+            a.show();
+          }
+        }
+      }
+    }
   }
 
   // Display pheromones
@@ -183,111 +347,51 @@ void draw() {
   }
 
   if (recording) {
-    String a = folderAddress + fileName + nf(frameCount, digits) + ".png";
+
+    //if (frameCount < out || (frameCount > out && frameCount < top)) {
+    //println("BELOW/AFTER OUT");
+    int fc = frameCount;
+    String a = folderAddress + fileName + nf(fc, digits) + ".png";
     saveFrame(a);
-    if (frameCount > int(fr * (totalLength - outro))) { // Make outro: purge all agents
-      agents = new ArrayList<Agent>();
-    }
-    if (frameCount > fr * totalLength) { // Exit after outro
+    if (frameCount == out) {
+      if (!sync) {
+        agents = new ArrayList<Agent>();
+      } else {
+        this.display = false;
+      }
+    } else if (frameCount == sound.ampArray.length-1) {
+      println("ENDING : " + frameCount);
       exit();
       println("Use this FFmpeg command to stitch frames together : ");
       String regex = "%0" + digits + "d";
-      println("FFmpeg -framerate " + fr + " -i " + fileName + regex + ".png -c:v libx264 -pix_fmt yuv420p output.mp4");
+      //ffmpeg -framerate 60 -i frames-%04d.png -i audio.mp3 -c:v libx264 -pix_fmt yuv420p output.mp4
+      String aud = "";
+      if (txtFile) {
+        aud = "-i " + audio + " ";
+      }
+      println("FFmpeg -framerate " + fr + " -i " + fileName + regex + ".png " + aud +"-c:v libx264 -pix_fmt yuv420p output.mp4");
     }
   }
 }
 
-void mouseClicked() {
-  if (mouseButton == LEFT) { // Left click
-    if (clickType) { // Spawn
-      println("Spawning");
-      int x = mouseX;
-      int y = mouseY;
-      // Check if mouse is in corners, edges, or center
-      boolean tl = (x >= 0 && x <= width / 3) && (y >= 0 && y <= height / 3);
-      boolean tr = (x >= 2 * width / 3 && x <= width) && (y >= 0 && y <= height / 3);
-      boolean bl = (x >= 0 && x <= width / 3) && (y >= 2 * height / 3 && y <= height);
-      boolean br = (x >= 2 * width / 3 && x <= width) && (y >= 2 * height / 3 && y <= height);
-      boolean corners = tl || tr || bl || br;
-      // Stitch statements together
-      boolean center = (x >= width / 3 && x <= 2 * width / 3) && (y >= width / 3 && y <= 2 * width / 3);
-      if (corners) { // Set spawn accordingly
-        spawn = "corners";
-      } else if (center) {
-        spawn = "center";
-      } else {
-        spawn = "edges";
-      }
-      spawn(); // Spawn
-    } else { // Attract
-      println("Attracting");
-      for (Agent a : agents) { // Change agent angle to point at the point of click
-        a.angle = atan2(a.pos.y - mouseY, a.pos.x - mouseX) + PI;
-      }
-    }
-  } else { // Right click
-    if (clickType) { //Purge
-      agents = new ArrayList<Agent>();
-    } else { // Push away
-      println("Repulsing");
-      for (Agent a : agents) { // Change agent angle to point away from the point of click
-        a.angle = atan2(a.pos.y - mouseY, a.pos.x - mouseX);
-      }
-    }
-  }
-}
-
-void keyPressed() {
-  if (keyCode == ENTER) { // Change click type
-    clickType = !clickType;
-    printType(clickType);
-  } else if (keyCode == 32) { // Turn around
-    println("Turning around");
-    for (Agent a : agents) {
-      a.angle += PI;
-    }
-    spawn = "random";
-  } else if (key == 's') { // Spiral spawn
-    spawn = "spiral";
-    spawn();
-  } else if (key == 'e') { // Edges spawn
-    spawn = "edges";
-    spawn();
-  } else if (key == 'c') { // Corner spawn
-    spawn = "corners";
-    spawn();
-  } else if (key == 'o') { // Center spawn
-    spawn = "center";
-    spawn();
-  }
-}
-
-// Print info
-void printType(boolean clickType) {
-  print("Current click type: ");
-  if (clickType) {
-    println("SPAWN/DESPAWN");
-  } else {
-    println("ATTRACT/REPULSE");
-  }
-}
 
 // Print info
 void printRules() {
-  println("Mode SPAWN/DESPAWN:");
-  println("Left click: spawn " + numAgents + " agents");
-  println("Right click: delete agents");
-  println("");
-  println("Mode ATTRACT/REPULSE");
-  println("Left click: agents will change direction towards the point of click");
-  println("Right click: agents will change direction away from the point of click");
-  println("");
-  println("Press ENTER to change click type");
-  println("Press S to spawn in spiral configuration");
-  println("Press E to spawn in edges");
-  println("Press C to spawn in corners");
-  println("Press O to spawn in center");
-  println("Press SPACEBAR turn around all agents");
-
-  println("");
+  if (!recording && ! sync) {
+    println("Mode SPAWN/DESPAWN:");
+    println("Left click: spawn " + numAgents + " agents");
+    println("Right click: delete agents");
+    println("");
+    println("Mode ATTRACT/REPULSE");
+    println("Left click: agents will change direction towards the point of click");
+    println("Right click: agents will change direction away from the point of click");
+    println("");
+    println("Press ENTER to change click type");
+    println("Press S to spawn in spiral configuration");
+    println("Press E to spawn in edges");
+    println("Press C to spawn in corners");
+    println("Press O to spawn in center");
+    println("Press SPACEBAR turn around all agents");
+    println("");
+  }
 }

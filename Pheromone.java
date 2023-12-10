@@ -37,7 +37,7 @@ class Pheromone { //Trail of agents
       trailColor = lerpColor(rgbA, rgbP, (this.diff));
     }
     if (tokill) {
-      trailColor = contour;
+      //trailColor = contour;
     }
     //stroke(255);
     fill(trailColor);

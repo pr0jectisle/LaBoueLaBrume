@@ -15,6 +15,7 @@ class Agent {
   boolean spawnCenterDir;
   boolean correctAngle;
 
+  float ogSpeed;
   float speed;
   float acc;
   float size;
@@ -41,7 +42,7 @@ class Agent {
   Agent(Canvas canvas, String mode, boolean randomSpawn, float num, float total, boolean collisionCenterDir, boolean spawnCenterDir, boolean correctAngle, float speed, float acc, float size, String spawn, String detail, int radius, color[] palette, color contour, String colorChange, boolean vertical, boolean horizontal, String angles, float scalor) {
     this.canvas = canvas;
     this.mode = mode;
-
+  
     this.randomSpawn = randomSpawn;
     this.num = num;
     this.total = total;
@@ -50,7 +51,8 @@ class Agent {
     this.collisionCenterDir = collisionCenterDir;
     this.correctAngle = correctAngle;
 
-    this.speed = speed;
+    this.ogSpeed = speed;
+    this.speed = ogSpeed;
     this.acc = acc;
     this.size = size;
 
@@ -343,7 +345,7 @@ class Agent {
 
   // Display
   void show() {
-    fill(this.contour);
+    //fill(this.contour);
     noStroke();
     rect(pos.x, pos.y, this.size, this.size);
   }
