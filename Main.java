@@ -93,7 +93,6 @@ boolean clickType = true;
 
 // RECORDING: recording parameters for saving frames
 
-boolean recording = true;     // Whether to record simulation
 int fr = 60;                   // Frame rate to record at
 int intro = 1;                 // Length of intro (seconds) (== background screen without agents)
 int outro = 1;                 // Length of outro (seconds) (== background screen without agents)
@@ -111,7 +110,6 @@ float scalor =2.5;
 
 //LABOUELABRUME : SOUND SYNC
 boolean sync = true;
-boolean txtFile = true;
 String source = "record";
 String audio = source + ".mp3";
 String txt = source + ".txt";
@@ -198,6 +196,9 @@ void spawn(int band) {
 
 // Simulation setup
 void setup() {
+  if (recording && sync && !txtFile) {
+    sync = false;
+  }
   canvas = new Canvas(shape, pad);
   size(800, 800);
   noStroke();
@@ -211,7 +212,6 @@ void setup() {
   if (sync) {
 
     Minim minim = new Minim(this);
-    println("Audio  : " + audio);
     AudioPlayer player = minim.loadFile(audio);
     String input = audio;
     if (txtFile) {
@@ -359,7 +359,7 @@ void draw() {
       } else {
         this.display = false;
       }
-    } else if (frameCount == sound.ampArray.length-1) {
+    } else if (frameCount == top) {
       println("ENDING : " + frameCount);
       exit();
       println("Use this FFmpeg command to stitch frames together : ");
@@ -373,25 +373,131 @@ void draw() {
     }
   }
 }
+void mouseClicked() {
+  if (!recording && !sync) {
+    if (mouseButton != RIGHT) { //Left click
+      if (clickType) {//spawn
 
+        println("Spawning");
+        int x = mouseX;
+        int y = mouseY;
+        //Check if mouse is in corners, edges or center
+        boolean tl = (x >= 0 && x<= width/3) && (y>= 0 && y<= height/3);
+        boolean tr = (x >= 2*width/3 && x<= width) && (y>= 0 && y<= height/3);
+        boolean bl = (x >= 0 && x<= width/3) && (y>= 2*height/3 && y<= height);
+        boolean br = (x >= 2*width/3 && x<= width) && (y>= 2*height/3 && y<= height);
+        boolean corners = tl || tr || bl || br;
+        //Stitch statements together
+        boolean center = (x>= width/3 && x <= 2*width/3) && (y>= width/3 && y<= 2*width/3);
+        if (corners) { //Set spawn accordingly
+          spawn = "corners";
+        } else if (center) {
+          spawn = "center";
+        } else {
+          spawn = "edges";
+        }
+        spawn(-1);   //Spawn
+      } else { //Attract
+        println("Attracting");
+        for (Agent a : agents) { //Change agent angle to point at point of click
+          a.angle = atan2(a.pos.y - mouseY, a.pos.x - mouseX) + PI;
+        }
+      }
+    } else { //Right click
+      if (clickType) {
+        agents = new ArrayList<Agent>();
+      } else {//Push away
+        println("Repulsing");
+        for (Agent a : agents) { //Change agent angle to point away from point of click
+          a.angle = atan2(a.pos.y - mouseY, a.pos.x - mouseX);
+        }
+      }
+    }
+  } else {
+    println("Software is recording / in sync, please do not disturb");
+  }
+}
+
+void keyPressed() {
+  if (!recording &&!sync) {
+    if (keyCode == ENTER) { //Change click type
+      clickType = !clickType;
+      printType(clickType);
+    } else if (keyCode == 32) {//Turn around
+      println("turning around");
+      for (Agent a : agents) {
+        a.angle += PI;
+      }
+      spawn = "random";
+    } else if (keyCode == BACKSPACE) { //Purge all agents
+      agents = new ArrayList<Agent>();
+    } else if (key == 's') { //Spiral spawn
+      spawn = "spiral";
+      spawn(-1);
+    } else if (key=='e') { //Edges spawn
+      spawn = "edges";
+      spawn(-1);
+    } else if (key=='c') { //Corner spawn
+      spawn = "corners";
+      spawn(-1);
+    } else if (key=='o') { //Center spawn
+      spawn = "center";
+      spawn(-1);
+    } else if (key =='p') {
+      spawn="center";
+      spawn(-1);
+      spawn = "edges" ;
+      spawn(-1);
+      spawn = "corners";
+    }
+  } else {
+    println("Software is recording / in sync, please do not disturb");
+  }
+}
+
+//Print info
+void printType(boolean clickType) {
+  print("Current click type : ");
+  if (clickType) {
+    println("SPAWN/DESPAWN");
+  } else {
+    println("ATTRACT/REPULSE");
+  }
+}
 
 // Print info
 void printRules() {
-  if (!recording && ! sync) {
-    println("Mode SPAWN/DESPAWN:");
-    println("Left click: spawn " + numAgents + " agents");
-    println("Right click: delete agents");
-    println("");
-    println("Mode ATTRACT/REPULSE");
-    println("Left click: agents will change direction towards the point of click");
-    println("Right click: agents will change direction away from the point of click");
-    println("");
-    println("Press ENTER to change click type");
-    println("Press S to spawn in spiral configuration");
-    println("Press E to spawn in edges");
-    println("Press C to spawn in corners");
-    println("Press O to spawn in center");
-    println("Press SPACEBAR turn around all agents");
-    println("");
+  if (!recording) {
+    if (!sync) {
+      println("Mode SPAWN/DESPAWN:");
+      println("Left click: spawn " + numAgents + " agents");
+      println("Right click: delete agents");
+      println("");
+      println("Mode ATTRACT/REPULSE");
+      println("Left click: agents will change direction towards the point of click");
+      println("Right click: agents will change direction away from the point of click");
+      println("");
+      println("Press ENTER to change click type");
+      println("Press S to spawn in spiral configuration");
+      println("Press E to spawn in edges");
+      println("Press C to spawn in corners");
+      println("Press O to spawn in center");
+      println("Press SPACEBAR turn around all agents");
+      println("");
+    } else {
+      println("Software is reacting live to audio : " + audio);
+      println("Sit back & enjoy");
+    }
+  } else {
+    print("Software is recording animation ");
+    if (sync) {
+      if (!txtFile) {
+        print( "synced with audio : " + audio);
+      } else {
+        print("based on text file : " + txt);
+      }
+    }
+    println(" into folder : " + folderAddress);
+    println("Please wait for animation to finish. " + top + " frames to record");
   }
 }

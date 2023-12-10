@@ -48,9 +48,6 @@ class Sound {
     this.txtFile = txtFile;
     if (txtFile) {
       readfile(file);
-      println("Reading .txt file");
-    } else {
-      println("Reading .mp3 file");
     }
     spectrum = new float[bands];
     smoothed = new float[bands];
@@ -65,8 +62,6 @@ class Sound {
 
     this.minim = minim;
     this.player = player;
-    println("BS : " + player.bufferSize());
-    println("SR : " + player.sampleRate());
     fft = new FFT(player.bufferSize(), player.sampleRate());
     //Set num of bands
     fft.linAverages(bands);
