@@ -38,6 +38,7 @@ float pheroDecay = ogPheroDecay;
 
 // spawnAtInit : whether agents will spawn at initialization
 boolean spawnAtInit = false;
+boolean spawnAtInit = true;
 //randomSpawn : whether agents are spawned at random spots on the spawn point or gradual spots
 boolean randomSpawn = false;
 /* spawn: specify the spawning point of agents:
@@ -94,6 +95,7 @@ boolean clickType = true;
 // RECORDING: recording parameters for saving frames
 
 boolean recording = true;     // Whether to record simulation
+boolean recording = false;     // Whether to record simulation
 int fr = 60;                   // Frame rate to record at
 int intro = 1;                 // Length of intro (seconds) (== background screen without agents)
 int outro = 1;                 // Length of outro (seconds) (== background screen without agents)
@@ -111,12 +113,13 @@ float scalor =2.5;
 
 //LABOUELABRUME : SOUND SYNC
 boolean sync = true;
+boolean sync = false;
 boolean txtFile = true;
 String source = "record";
+String source = "Carnaval";
 String audio = source + ".mp3";
 String txt = source + ".txt";
 
-boolean ampSpeed = false;
 // END OF CUSTOMIZABLE
 
 Canvas canvas;
@@ -138,8 +141,9 @@ boolean display = true;
 boolean choreography(int band) {
   if (band == 0) {
     mode = "alignment";
+    mode = "entropy";
+    spawn = "spiral";
     vertical = true;
-    horizontal = false;
     angles = "log";
     scalor = 1.25;
     collisionCenterDir = true;
@@ -150,7 +154,6 @@ boolean choreography(int band) {
     ogSpeed = 1;
     agentSize = 2;
     canvas = new Canvas(shape, pad);
-    numAgents = 100;
     return true;
   } else if (band ==1) {
     mode = "alignment";
@@ -167,7 +170,7 @@ boolean choreography(int band) {
     agentSize = 2;
     canvas = new Canvas(shape, pad);
     numAgents = 2000;
-    return true;
+    return false;
   } else if (band == 2) {
     mode = "entropy";
     spawn = "center";
@@ -300,12 +303,9 @@ void draw() {
 
   // Move agents, Display agents & add pheromones
 
-  int numA = agents.size()-1;
-  if (sync) {
-    numA = numAgents-1;
-  }
+
   if (!sync) { //Normal agent arraylist
-    for (int i = agents.size()-1; i>= 0; i++) {
+    for (int i = agents.size()-1; i>= 0; i--) {
       Agent a = agents.get(i);
       pheromones.add(new Pheromone(a.pos.copy(), pheroDecay, a.acc, a.ac, a.pc, a.contour, a.colorChange, a.diff, a.size));
       a.update();
@@ -316,11 +316,11 @@ void draw() {
       if (st[i]) {
         for (int j=agentsSync.get(i).length-1; j>=0; j--) {
           Agent a = agentsSync.get(i)[j];
-          if(ampSpeed){
+          if (ampSpeed) {
             a.speed = a.ogSpeed * speedFac;
             pheroDecay = max(ogPheroDecay, ogPheroDecay * speedFac);
           }
-          
+
           if (display) {
             pheromones.add(new Pheromone(a.pos.copy(), pheroDecay, a.acc, a.ac, a.pc, a.contour, a.colorChange, a.diff, a.size));
             a.update();

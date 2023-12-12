@@ -87,10 +87,7 @@ class Agent {
         int i = int(random(4));
         if (!randomSpawn) {
           i = int(num)%4;
-        } /*else {
-         num = (num - num%4)/4;
-         total = total/4;
-         }*/
+        }
 
         float spawnAngle = angless[i]; //BOT RIGHT
         isInCorner[i] = true;
@@ -183,17 +180,16 @@ class Agent {
       if (spawn == "random") { // Random position
         this.pos = new PVector(random(pad, width-pad), random(pad, height-pad));
       } else if (spawn == "spiral") { // Spiral position
-        // Equation for spiral: x(t) = a * t * cos(t), y(t) = a * t * sin(t)
         float t = random(1) * tScale;
-        //if(!randomSpawn){ //Gradual spawn doesn't work this way?
-        //t = num/total * tScale;
-        //}
+        if(!randomSpawn){ 
+        t = num/total * tScale;
+        }
         float offsetX = a * t * cos(t);
         float offsetY = a * t * sin(t);
         float x = width/2 ;
         float y = height/2 ;
 
-        if (random(1)>0.5) {
+        if (num%2 == 0) {
           x += offsetX;
           y += offsetY;
         } else {
