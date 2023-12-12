@@ -116,6 +116,7 @@ String source = "record";
 String audio = source + ".mp3";
 String txt = source + ".txt";
 
+boolean ampSpeed = false;
 // END OF CUSTOMIZABLE
 
 Canvas canvas;
@@ -231,7 +232,6 @@ void setup() {
     }
     for (int i=0; i<bands; i++) {
       if (choreography(i)) {
-        println("Gen " + i + " : " + numAgents);
         agentsSync.add(new Agent[numAgents]);
       }
     }
@@ -314,12 +314,13 @@ void draw() {
   } else { //Sync agent arraylist
     for (int i=0; i<st.length; i++) {
       if (st[i]) {
-        //println("ya1");
-        println("Gen : " + i + " : " + agentsSync.get(i).length);
         for (int j=agentsSync.get(i).length-1; j>=0; j--) {
           Agent a = agentsSync.get(i)[j];
-          a.speed = a.ogSpeed * speedFac;
-          pheroDecay = max(ogPheroDecay, ogPheroDecay * speedFac);
+          if(ampSpeed){
+            a.speed = a.ogSpeed * speedFac;
+            pheroDecay = max(ogPheroDecay, ogPheroDecay * speedFac);
+          }
+          
           if (display) {
             pheromones.add(new Pheromone(a.pos.copy(), pheroDecay, a.acc, a.ac, a.pc, a.contour, a.colorChange, a.diff, a.size));
             a.update();
