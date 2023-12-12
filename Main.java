@@ -93,6 +93,7 @@ boolean clickType = true;
 
 // RECORDING: recording parameters for saving frames
 
+boolean recording = true;     // Whether to record simulation
 int fr = 60;                   // Frame rate to record at
 int intro = 1;                 // Length of intro (seconds) (== background screen without agents)
 int outro = 1;                 // Length of outro (seconds) (== background screen without agents)
@@ -110,6 +111,7 @@ float scalor =2.5;
 
 //LABOUELABRUME : SOUND SYNC
 boolean sync = true;
+boolean txtFile = true;
 String source = "record";
 String audio = source + ".mp3";
 String txt = source + ".txt";
@@ -137,31 +139,34 @@ boolean choreography(int band) {
     mode = "alignment";
     vertical = true;
     horizontal = false;
-    angles = "sin";
+    angles = "log";
+    scalor = 1.25;
     collisionCenterDir = true;
-    palette = new color[]{color(255, 21, 134), color(97, 9, 170), color(159, 69, 176), color(68, 0, 139), color(0, 7, 111)};
+    palette = new color[]{color(242, 29, 129), color(190, 148, 91), color(82, 132, 60), color(31, 63, 43), color(233, 237, 96)};
     colorChange = "distance";
-    shape = "circle";
-    pad = 150;
+    shape = "square";
+    pad = 0;
     ogSpeed = 1;
-    agentSize = 5;
+    agentSize = 2;
     canvas = new Canvas(shape, pad);
+    numAgents = 100;
     return true;
   } else if (band ==1) {
-    mode = "entropy";
-    spawn = "edges";
-    radius = 250;
-    palette = new color[]{  color(0, 0, 0), color(65, 65, 65), color(150, 150, 150)};
-    collisionCenterDir = false;
-    spawnCenterDir = true;
-    correctAngle = true;
-    ogSpeed = 5;
-    agentSize = 1;
+    mode = "alignment";
+    vertical = false;
+    horizontal = true;
+    angles = "log";
+    scalor = 1.25;
+    collisionCenterDir = true;
+    palette = new color[]{color(242, 29, 129), color(190, 148, 91), color(82, 132, 60), color(31, 63, 43), color(233, 237, 96)};
     colorChange = "distance";
-    shape = "circle";
+    shape = "square";
     pad = 0;
+    ogSpeed = 1;
+    agentSize = 2;
     canvas = new Canvas(shape, pad);
-    return false;
+    numAgents = 2000;
+    return true;
   } else if (band == 2) {
     mode = "entropy";
     spawn = "center";
@@ -226,6 +231,7 @@ void setup() {
     }
     for (int i=0; i<bands; i++) {
       if (choreography(i)) {
+        println("Gen " + i + " : " + numAgents);
         agentsSync.add(new Agent[numAgents]);
       }
     }
@@ -256,7 +262,7 @@ void draw() {
       speedFac = sound.amp;
     }
     if (txtFile) {
-      speedFac = pow(speedFac, 2) * 1000000 * 2.5;
+      speedFac = pow(speedFac, 2) * 100000 * 2.5;
       if (sound.pitch != 0) {
         speedFac = max(speedFac, 0.1);
       }
@@ -298,17 +304,20 @@ void draw() {
   if (sync) {
     numA = numAgents-1;
   }
-
-  for (int i = numA; i >= 0; i--) {
-    if (!sync) {
+  if (!sync) { //Normal agent arraylist
+    for (int i = agents.size()-1; i>= 0; i++) {
       Agent a = agents.get(i);
       pheromones.add(new Pheromone(a.pos.copy(), pheroDecay, a.acc, a.ac, a.pc, a.contour, a.colorChange, a.diff, a.size));
       a.update();
       a.show();
-    } else {
-      for (int j=0; j<st.length; j++) {
-        if (st[j]) {
-          Agent a = agentsSync.get(j)[i];
+    }
+  } else { //Sync agent arraylist
+    for (int i=0; i<st.length; i++) {
+      if (st[i]) {
+        //println("ya1");
+        println("Gen : " + i + " : " + agentsSync.get(i).length);
+        for (int j=agentsSync.get(i).length-1; j>=0; j--) {
+          Agent a = agentsSync.get(i)[j];
           a.speed = a.ogSpeed * speedFac;
           pheroDecay = max(ogPheroDecay, ogPheroDecay * speedFac);
           if (display) {
@@ -320,6 +329,7 @@ void draw() {
       }
     }
   }
+
 
   // Display pheromones
   if (heads == true) { // Display "head" of agent on top of "tail"
