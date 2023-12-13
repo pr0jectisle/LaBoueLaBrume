@@ -61,7 +61,8 @@ int radius = 100;
 //shape : shape of canvas : "square" or "circle"
 String shape = "circle";
 //pad : padding from the edge of the window to the edge of the canvas
-int pad = 100;
+int xpad = 100;
+int ypad = 100;
 color col = color(255,255,255);
 int stroke = 4;
 
@@ -150,10 +151,11 @@ boolean choreography(int band) {
     palette = new color[]{color(242, 29, 129), color(190, 148, 91), color(82, 132, 60), color(31, 63, 43), color(233, 237, 96)};
     colorChange = "distance";
     shape = "circle";
-    pad = 100;
+    xpad = 100;
+    ypad = 200;
     ogSpeed = 1;
     agentSize = 2;
-    canvas = new Canvas(shape, pad, col, bc, stroke);
+    canvas = new Canvas(shape, xpad, ypad, col, bc, stroke);
     numAgents = 6000;
     return true;
   } else if (band ==1) {
@@ -166,10 +168,9 @@ boolean choreography(int band) {
     palette = new color[]{color(242, 29, 129), color(190, 148, 91), color(82, 132, 60), color(31, 63, 43), color(233, 237, 96)};
     colorChange = "distance";
     shape = "square";
-    pad = 0;
     ogSpeed = 1;
     agentSize = 2;
-    canvas = new Canvas(shape, pad, col, bc, stroke);
+    canvas = new Canvas(shape, xpad, ypad, col, bc, stroke);
     numAgents = 2000;
     return false;
   } else if (band == 2) {
@@ -184,8 +185,7 @@ boolean choreography(int band) {
     agentSize = 1;
     colorChange = "distance";
     shape = "circle";
-    pad = 0;
-    canvas = new Canvas(shape, pad,col, bc, stroke);
+    canvas = new Canvas(shape, xpad, ypad, col, bc, stroke);
     return false;
   } else {
     return false;
@@ -209,7 +209,7 @@ void setup() {
   if (recording && sync && !txtFile) {
     sync = false;
   }
-  canvas = new Canvas(shape, pad,col, bc, stroke);
+  canvas = new Canvas(shape, xpad, ypad, col, bc, stroke);
   size(800, 800);
   noStroke();
   rectMode(CENTER);

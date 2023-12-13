@@ -133,10 +133,10 @@ class Agent {
       } else if (spawn == "edges") { // Spawn on edges
         // Define 4 edge centers
         PVector [] edges = {
-          new PVector(0 + canvas.pad, height/2),
-          new PVector(width/2, 0+canvas.pad),
-          new PVector(width-canvas.pad, height/2),
-          new PVector(width/2, height - canvas.pad)
+          new PVector(0 + canvas.xpad, height/2),
+          new PVector(width/2, 0+canvas.ypad),
+          new PVector(width-canvas.xpad, height/2),
+          new PVector(width/2, height - canvas.ypad)
         };
         int i = int(random(4));
         if (!randomSpawn) {
@@ -178,7 +178,7 @@ class Agent {
       }
 
       if (spawn == "random") { // Random position
-        this.pos = new PVector(random(pad, width-pad), random(pad, height-pad));
+        this.pos = new PVector(random(xpad, width-xpad), random(ypad, height-xpad));
       } else if (spawn == "spiral") { // Spiral position
         float t = random(1) * tScale;
         if(!randomSpawn){ 
@@ -216,8 +216,8 @@ class Agent {
       }
     } else if (mode == "alignment") {
       //Alignment spawn : spawn on a line
-      int[] vertBounds = {pad, height-pad};
-      int[] horiBounds = {pad, width-pad};
+      int[] vertBounds = {ypad, height-ypad};
+      int[] horiBounds = {xpad, width-xpad};
 
       if (vertical && horizontal) {
         if (random(1)>0.5) {
