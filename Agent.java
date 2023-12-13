@@ -59,7 +59,6 @@ class Agent {
     this.palette = palette;
     this.contour = contour;
     this.colorChange = colorChange;
-
     this.cIndex = 1;
     this.pc = palette[cIndex-1];
     this.ac = palette[cIndex];
@@ -78,7 +77,7 @@ class Agent {
 
       if (spawn == "center") { // Spawn in center (customizable)
 
-        this.pos = new PVector(width/2, height/2);
+        this.pos = new PVector(canvas.center.x, canvas.center.y);
       } else if (spawn == "corners") {
 
         float[] angless = {PI/4, 3*PI/4, 5*PI/4, 7*PI/4};
@@ -91,8 +90,8 @@ class Agent {
 
         float spawnAngle = angless[i]; //BOT RIGHT
         isInCorner[i] = true;
-        float x = width/2 + (width/2 - canvas.xpad) * cos(spawnAngle);
-        float y = height/2 + (height/2 - canvas.ypad) * sin(spawnAngle);
+        float x = canvas.center.x + (width/2 - canvas.xpad) * cos(spawnAngle);
+        float y = canvas.center.y + (height/2 - canvas.ypad) * sin(spawnAngle);
         this.pos = new PVector(x, y);
 
         if (correctAngle) { // Correct angle to point towards canvas
@@ -133,10 +132,10 @@ class Agent {
       } else if (spawn == "edges") { // Spawn on edges
         // Define 4 edge centers
         PVector [] edges = {
-          new PVector(0 + canvas.xpad, height/2),
-          new PVector(width/2, 0+canvas.ypad),
-          new PVector(width-canvas.xpad, height/2),
-          new PVector(width/2, height - canvas.ypad)
+          new PVector(canvas.center.x - (width/2 - canvas.xpad), canvas.center.y),
+          new PVector(canvas.center.x, canvas.center.y + (height/2-canvas.ypad)),
+          new PVector(canvas.center.x + (width/2-canvas.xpad), canvas.center.y),
+          new PVector(canvas.center.x, canvas.center.y - (height/2-canvas.ypad))
         };
         int i = int(random(4));
         if (!randomSpawn) {
@@ -186,8 +185,8 @@ class Agent {
         }
         float offsetX = a * t * cos(t);
         float offsetY = a * t * sin(t);
-        float x = width/2 ;
-        float y = height/2 ;
+        float x = canvas.center.x ;
+        float y = canvas.center.y ;
 
         if (num%2 == 0) {
           x += offsetX;
@@ -212,7 +211,7 @@ class Agent {
       }
 
       if (spawnCenterDir) { // Change angle to point to the center
-        this.angle = atan2(pos.y - height/2, pos.x - width/2) + PI;
+        this.angle = atan2(pos.y - canvas.center.y, pos.x - canvas.center.x) + PI;
       }
     } else if (mode == "alignment") {
       //Alignment spawn : spawn on a line
@@ -229,16 +228,16 @@ class Agent {
       float[] possibleAngles = {0, PI};
       if (vertical) {
         if (randomSpawn) {
-          this.pos = new PVector(width/2, random(vertBounds[0], vertBounds[1]));
+          this.pos = new PVector(canvas.center.x, random(vertBounds[0], vertBounds[1]));
         } else {
-          this.pos = new PVector(width/2, vertBounds[0] + (num/total)*(vertBounds[1] - vertBounds[0]));
+          this.pos = new PVector(canvas.center.x, vertBounds[0] + (num/total)*(vertBounds[1] - vertBounds[0]));
         }
       }
       if (horizontal) {
         if (randomSpawn) {
-          this.pos = new PVector(random(horiBounds[0], horiBounds[1]), height/2);
+          this.pos = new PVector(random(horiBounds[0], horiBounds[1]), canvas.center.y);
         } else {
-          this.pos = new PVector(horiBounds[0] + (num/total) * (horiBounds[1]-horiBounds[0]), height/2);
+          this.pos = new PVector(horiBounds[0] + (num/total) * (horiBounds[1]-horiBounds[0]), canvas.center.y);
         }
         possibleAngles = new float[]{PI/2, 3*PI/2};
       }
@@ -259,7 +258,7 @@ class Agent {
       } else {
         this.angle = possibleAngles[1];
       }
-      float dist = sqrt(pow(pos.x - width/2, 2) + pow(pos.y - height/2, 2));
+      float dist = sqrt(pow(pos.x - canvas.center.x, 2) + pow(pos.y - canvas.center.y, 2));
 
       if (angles == "sin") {
         if (direction2) {
@@ -300,7 +299,7 @@ class Agent {
     PVector dir = new PVector(cos(angle), sin(angle));
     this.pos.add(dir.mult(speed));
     this.speed += this.acc; // Apply acceleration
-    float distance = sqrt(pow(pos.x - width/2, 2) + pow(pos.y - height/2, 2));
+    float distance = sqrt(pow(pos.x - canvas.center.x, 2) + pow(pos.y - canvas.center.y, 2));
 
     if (distance <= canvas.maxDistance+size) {
       canvas.bounce(this);

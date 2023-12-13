@@ -65,6 +65,7 @@ int xpad = 100;
 int ypad = 100;
 color col = color(255,255,255);
 int stroke = 4;
+PVector center;
 
 // DISPLAY
 
@@ -141,7 +142,7 @@ boolean display = true;
 boolean choreography(int band) {
   if (band == 0) {
     mode = "entropy";
-    spawn = "corners";
+    spawn = "edges";
     vertical = true;
     horizontal = false;
     angles = "log";
@@ -152,12 +153,13 @@ boolean choreography(int band) {
     palette = new color[]{color(242, 29, 129), color(190, 148, 91), color(82, 132, 60), color(31, 63, 43), color(233, 237, 96)};
     colorChange = "distance";
     shape = "circle";
-    xpad = 200;
-    ypad = 100;
+    xpad = 100;
+    ypad = 200;
     ogSpeed = 1;
     agentSize = 2;
-    radius = 200;
-    canvas = new Canvas(shape, xpad, ypad, col, bc, stroke);
+    radius = 0;
+    detail = "on";
+    canvas = new Canvas(center,shape, xpad, ypad, col, bc, stroke);
     numAgents = 6000;
     return true;
   } else if (band ==1) {
@@ -172,7 +174,7 @@ boolean choreography(int band) {
     shape = "square";
     ogSpeed = 1;
     agentSize = 2;
-    canvas = new Canvas(shape, xpad, ypad, col, bc, stroke);
+    canvas = new Canvas(center,shape, xpad, ypad, col, bc, stroke);
     numAgents = 2000;
     return false;
   } else if (band == 2) {
@@ -187,7 +189,7 @@ boolean choreography(int band) {
     agentSize = 1;
     colorChange = "distance";
     shape = "circle";
-    canvas = new Canvas(shape, xpad, ypad, col, bc, stroke);
+    canvas = new Canvas(center,shape, xpad, ypad, col, bc, stroke);
     return false;
   } else {
     return false;
@@ -211,10 +213,9 @@ void setup() {
   if (recording && sync && !txtFile) {
     sync = false;
   }
-  canvas = new Canvas(shape, xpad, ypad, col, bc, stroke);
   size(800, 800);
-  noStroke();
-  rectMode(CENTER);
+  center = new PVector(width/2,height/2);
+  canvas = new Canvas(center,shape, xpad, ypad, col, bc, stroke);
   if (spawnAtInit) {
     choreography(0);
     spawn(-1);
