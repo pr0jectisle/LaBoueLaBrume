@@ -141,20 +141,22 @@ boolean display = true;
 boolean choreography(int band) {
   if (band == 0) {
     mode = "entropy";
-    spawn = "spiral";
+    spawn = "corners";
     vertical = true;
-    horizontal = true;
+    horizontal = false;
     angles = "log";
     scalor = 1.25;
     collisionCenterDir = true;
-    spawnCenterDir = true;
+    spawnCenterDir = false;
+    correctAngle = false;
     palette = new color[]{color(242, 29, 129), color(190, 148, 91), color(82, 132, 60), color(31, 63, 43), color(233, 237, 96)};
     colorChange = "distance";
     shape = "circle";
-    xpad = 100;
-    ypad = 200;
+    xpad = 200;
+    ypad = 100;
     ogSpeed = 1;
     agentSize = 2;
+    radius = 200;
     canvas = new Canvas(shape, xpad, ypad, col, bc, stroke);
     numAgents = 6000;
     return true;

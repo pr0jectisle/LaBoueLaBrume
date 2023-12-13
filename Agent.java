@@ -91,8 +91,8 @@ class Agent {
 
         float spawnAngle = angless[i]; //BOT RIGHT
         isInCorner[i] = true;
-        float x = width/2 + canvas.maxDistance * cos(spawnAngle);
-        float y = height/2 + canvas.maxDistance * sin(spawnAngle);
+        float x = width/2 + (width/2 - canvas.xpad) * cos(spawnAngle);
+        float y = height/2 + (height/2 - canvas.ypad) * sin(spawnAngle);
         this.pos = new PVector(x, y);
 
         if (correctAngle) { // Correct angle to point towards canvas
