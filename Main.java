@@ -61,8 +61,8 @@ int radius = 100;
 //shape : shape of canvas : "square" or "circle"
 String shape = "circle";
 //pad : padding from the edge of the window to the edge of the canvas
-int xpad = 100;
-int ypad = 100;
+int w = 100;
+int h = 100;
 color col = color(255,255,255);
 int stroke = 4;
 PVector center;
@@ -141,25 +141,25 @@ boolean display = true;
 //Method choreography
 boolean choreography(int band) {
   if (band == 0) {
-    mode = "entropy";
-    spawn = "edges";
+    mode = "alignment";
+    spawn = "corners";
     vertical = true;
-    horizontal = false;
-    angles = "log";
-    scalor = 1.25;
+    horizontal = true;
+    angles = "cos";
+    scalor = 5.25;
     collisionCenterDir = true;
     spawnCenterDir = false;
     correctAngle = false;
     palette = new color[]{color(242, 29, 129), color(190, 148, 91), color(82, 132, 60), color(31, 63, 43), color(233, 237, 96)};
     colorChange = "distance";
     shape = "circle";
-    xpad = 100;
-    ypad = 200;
+    w = 400;
+    h = 200;
     ogSpeed = 1;
     agentSize = 2;
     radius = 0;
     detail = "on";
-    canvas = new Canvas(center,shape, xpad, ypad, col, bc, stroke);
+    canvas = new Canvas(center,shape, w, h, col, bc, stroke);
     numAgents = 6000;
     return true;
   } else if (band ==1) {
@@ -174,7 +174,7 @@ boolean choreography(int band) {
     shape = "square";
     ogSpeed = 1;
     agentSize = 2;
-    canvas = new Canvas(center,shape, xpad, ypad, col, bc, stroke);
+    canvas = new Canvas(center,shape, w, h, col, bc, stroke);
     numAgents = 2000;
     return false;
   } else if (band == 2) {
@@ -189,7 +189,7 @@ boolean choreography(int band) {
     agentSize = 1;
     colorChange = "distance";
     shape = "circle";
-    canvas = new Canvas(center,shape, xpad, ypad, col, bc, stroke);
+    canvas = new Canvas(center,shape, w, h, col, bc, stroke);
     return false;
   } else {
     return false;
@@ -214,8 +214,8 @@ void setup() {
     sync = false;
   }
   size(800, 800);
-  center = new PVector(width/2,height/2);
-  canvas = new Canvas(center,shape, xpad, ypad, col, bc, stroke);
+  center = new PVector(width/3,height/3);
+  canvas = new Canvas(center,shape, w, h, col, bc, stroke);
   if (spawnAtInit) {
     choreography(0);
     spawn(-1);

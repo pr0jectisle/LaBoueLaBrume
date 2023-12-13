@@ -90,8 +90,8 @@ class Agent {
 
         float spawnAngle = angless[i]; //BOT RIGHT
         isInCorner[i] = true;
-        float x = canvas.center.x + (width/2 - canvas.xpad) * cos(spawnAngle);
-        float y = canvas.center.y + (height/2 - canvas.ypad) * sin(spawnAngle);
+        float x = canvas.center.x + (w/2) * cos(spawnAngle);
+        float y = canvas.center.y + (h/2) * sin(spawnAngle);
         this.pos = new PVector(x, y);
 
         if (correctAngle) { // Correct angle to point towards canvas
@@ -132,10 +132,10 @@ class Agent {
       } else if (spawn == "edges") { // Spawn on edges
         // Define 4 edge centers
         PVector [] edges = {
-          new PVector(canvas.center.x - (width/2 - canvas.xpad), canvas.center.y),
-          new PVector(canvas.center.x, canvas.center.y + (height/2-canvas.ypad)),
-          new PVector(canvas.center.x + (width/2-canvas.xpad), canvas.center.y),
-          new PVector(canvas.center.x, canvas.center.y - (height/2-canvas.ypad))
+          new PVector(canvas.center.x - (w/2), canvas.center.y),
+          new PVector(canvas.center.x, canvas.center.y + (h/2)),
+          new PVector(canvas.center.x + (w/2), canvas.center.y),
+          new PVector(canvas.center.x, canvas.center.y - (h/2))
         };
         int i = int(random(4));
         if (!randomSpawn) {
@@ -177,7 +177,7 @@ class Agent {
       }
 
       if (spawn == "random") { // Random position
-        this.pos = new PVector(random(xpad, width-xpad), random(ypad, height-xpad));
+        this.pos = new PVector(random(canvas.center.x - w, canvas.center.x + w), random(canvas.center.y - h, canvas.center.y + h));
       } else if (spawn == "spiral") { // Spiral position
         float t = random(1) * tScale;
         if(!randomSpawn){ 
@@ -215,8 +215,8 @@ class Agent {
       }
     } else if (mode == "alignment") {
       //Alignment spawn : spawn on a line
-      int[] vertBounds = {ypad, height-ypad};
-      int[] horiBounds = {xpad, width-xpad};
+      int[] vertBounds = {int(canvas.center.y - (h/2)), int(canvas.center.y + (h/2))};
+      int[] horiBounds = {int(canvas.center.x - (w/2)), int(canvas.center.x + (w/2))};
 
       if (vertical && horizontal) {
         if (random(1)>0.5) {
