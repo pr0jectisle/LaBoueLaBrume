@@ -63,7 +63,7 @@ String shape = "circle";
 //pad : padding from the edge of the window to the edge of the canvas
 int w = 100;
 int h = 100;
-color col = color(255,255,255);
+color col = color(255, 255, 255);
 int stroke = 4;
 PVector center;
 
@@ -101,7 +101,7 @@ boolean recording = false;     // Whether to record simulation
 int fr = 60;                   // Frame rate to record at
 int intro = 1;                 // Length of intro (seconds) (== background screen without agents)
 int outro = 1;                 // Length of outro (seconds) (== background screen without agents)
-int totalLength = 15;          // Length of recording
+int totalLength = 30;          // Length of recording
 String folderAddress = "frames/build/"; // Address of folder where frames are saved
 String fileName = "frames-";   // Name of PNG file
 int digits = 4;                // Digits to add after the name
@@ -115,8 +115,8 @@ float scalor =2.5;
 
 //LABOUELABRUME : SOUND SYNC
 boolean sync = false;
-boolean txtFile = true;
-String source = "Carnaval";
+boolean txtFile = false;
+String source = "Sainte";
 String audio = source + ".mp3";
 String txt = source + ".txt";
 
@@ -124,6 +124,8 @@ boolean ampSpeed = true;
 // END OF CUSTOMIZABLE
 
 Canvas canvas;
+ArrayList<Canvas> tempCanvases = new ArrayList<Canvas>();
+ArrayList<Canvas> canvases = new ArrayList<Canvas>();
 ArrayList<Agent> agents = new ArrayList<Agent>();
 ArrayList<Pheromone> pheromones = new ArrayList<Pheromone>();
 ArrayList<Agent[]> agentsSync = new ArrayList<Agent[]>();
@@ -141,6 +143,7 @@ boolean display = true;
 //Method choreography
 boolean choreography(int band) {
   if (band == 0) {
+    tempCanvases = new ArrayList<Canvas>();
     mode = "alignment";
     spawn = "corners";
     vertical = true;
@@ -153,30 +156,56 @@ boolean choreography(int band) {
     palette = new color[]{color(242, 29, 129), color(190, 148, 91), color(82, 132, 60), color(31, 63, 43), color(233, 237, 96)};
     colorChange = "distance";
     shape = "circle";
-    w = 400;
+    w = 200;
     h = 200;
     ogSpeed = 1;
     agentSize = 2;
     radius = 0;
     detail = "on";
-    canvas = new Canvas(center,shape, w, h, col, bc, stroke);
-    numAgents = 6000;
+    center = new PVector(width/4, height/4);
+    canvas = new Canvas(center, shape, w, h, col, bc, stroke);
+    tempCanvases.add(canvas);
+    canvases.add(canvas);
+    center = new PVector(3*width/4, height/4);
+    canvas = new Canvas(center, shape, w, h, col, bc, stroke);
+    tempCanvases.add(canvas);
+    canvases.add(canvas);
+    center = new PVector(width/4, 3*height/4);
+    canvas = new Canvas(center, shape, w, h, col, bc, stroke);
+    tempCanvases.add(canvas);
+    canvases.add(canvas);
+    center = new PVector(3*width/4, 3*height/4);
+    canvas = new Canvas(center, shape, w, h, col, bc, stroke);
+    tempCanvases.add(canvas);
+    canvases.add(canvas);
+    numAgents = 1500;
     return true;
   } else if (band ==1) {
+    tempCanvases = new ArrayList<Canvas>();
     mode = "alignment";
+    spawn = "center";
     vertical = false;
     horizontal = true;
     angles = "log";
     scalor = 1.25;
     collisionCenterDir = true;
-    palette = new color[]{color(242, 29, 129), color(190, 148, 91), color(82, 132, 60), color(31, 63, 43), color(233, 237, 96)};
+    spawnCenterDir = false;
+    correctAngle = false;
+    palette = new color[]{color(155,255,255), color(100,100,100)};
     colorChange = "distance";
-    shape = "square";
+    shape = "circle";
+    w = 800;
+    h = 200;
     ogSpeed = 1;
     agentSize = 2;
-    canvas = new Canvas(center,shape, w, h, col, bc, stroke);
-    numAgents = 2000;
-    return false;
+    radius = 0;
+    detail = "on";
+    center = new PVector(width/2, height/2);
+    canvas = new Canvas(center, shape, w, h, col, bc, stroke);
+    tempCanvases.add(canvas);
+    canvases.add(canvas);
+    numAgents = 3000;
+    return true;
   } else if (band == 2) {
     mode = "entropy";
     spawn = "center";
@@ -189,7 +218,7 @@ boolean choreography(int band) {
     agentSize = 1;
     colorChange = "distance";
     shape = "circle";
-    canvas = new Canvas(center,shape, w, h, col, bc, stroke);
+    canvas = new Canvas(center, shape, w, h, col, bc, stroke);
     return false;
   } else {
     return false;
@@ -201,9 +230,13 @@ void spawn(int band) {
   // Spawn new agents
   for (int i = 0; i < numAgents; i++) {
     if (!sync) {
-      agents.add(new Agent(canvas, mode, randomSpawn, i, numAgents, collisionCenterDir, spawnCenterDir, correctAngle, ogSpeed, acc, agentSize, spawn, detail, radius, palette, contour, colorChange, vertical, horizontal, angles, scalor));
+      for (int j=0; j<tempCanvases.size(); j++) {
+        agents.add(new Agent(tempCanvases.get(j), mode, randomSpawn, i, numAgents, collisionCenterDir, spawnCenterDir, correctAngle, ogSpeed, acc, agentSize, spawn, detail, radius, palette, contour, colorChange, vertical, horizontal, angles, scalor));
+      }
     } else {
-      agentsSync.get(band)[i] = new Agent(canvas, mode, randomSpawn, i, numAgents, collisionCenterDir, spawnCenterDir, correctAngle, ogSpeed, acc, agentSize, spawn, detail, radius, palette, contour, colorChange, vertical, horizontal, angles, scalor);
+      for (int j=0; j<tempCanvases.size(); j++) {
+        agentsSync.get(band)[i] = new Agent(tempCanvases.get(j), mode, randomSpawn, i, numAgents, collisionCenterDir, spawnCenterDir, correctAngle, ogSpeed, acc, agentSize, spawn, detail, radius, palette, contour, colorChange, vertical, horizontal, angles, scalor);
+      }
     }
   }
 }
@@ -214,11 +247,16 @@ void setup() {
     sync = false;
   }
   size(800, 800);
-  center = new PVector(width/3,height/3);
-  canvas = new Canvas(center,shape, w, h, col, bc, stroke);
+  //center = new PVector(width/3,height/3);
+  //canvas = new Canvas(center,shape, w, h, col, bc, stroke);
   if (spawnAtInit) {
-    choreography(0);
-    spawn(-1);
+    if(choreography(0)){
+      spawn(-1);
+    }
+    if(choreography(1)){
+      spawn(-1);
+    }
+    
   }
   println("Welcome");
   printRules();
@@ -261,7 +299,9 @@ void draw() {
   }
   // Background color
   background(bc);
-  canvas.display();
+  for (Canvas c : canvases) {
+    c.display();
+  }
 
   if (sync) {
     sound.update(frameCount);
