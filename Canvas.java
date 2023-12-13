@@ -1,11 +1,17 @@
 class Canvas {
   String shape;
   int pad;
+  color col;
+  color bc;
+  int stroke;
   float maxDistance;
 
-  Canvas(String shape, int pad) {
+  Canvas(String shape, int pad, color col, color bc, int stroke) {
     this.shape = shape;
     this.pad = pad;
+    this.col = col;
+    this.bc = bc;
+    this.stroke = stroke;
     if (shape == "square") {
       this.maxDistance = sqrt(pow(width/2 - pad, 2) + pow(height/2 - pad, 2));
     } else if (shape == "circle") {
@@ -51,6 +57,21 @@ class Canvas {
           a.bounced = true;
         }
       }
+    }
+  }
+  
+  void display(){
+    if(shape == "square"){
+      rectMode(CENTER);
+      fill(bc);
+      stroke(col);
+      strokeWeight(stroke);
+      rect(width/2,height/2,width - (2*pad), height - (2*pad));
+    } else if(shape == "circle"){
+      fill(bc);
+      stroke(col);
+      strokeWeight(stroke);
+      ellipse(width/2,height/2, width - (2*pad), height - (2*pad));
     }
   }
 }

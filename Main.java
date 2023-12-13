@@ -37,7 +37,6 @@ float pheroDecay = ogPheroDecay;
 // SPAWN: spawn parameters for agents
 
 // spawnAtInit : whether agents will spawn at initialization
-boolean spawnAtInit = false;
 boolean spawnAtInit = true;
 //randomSpawn : whether agents are spawned at random spots on the spawn point or gradual spots
 boolean randomSpawn = false;
@@ -63,6 +62,8 @@ int radius = 100;
 String shape = "circle";
 //pad : padding from the edge of the window to the edge of the canvas
 int pad = 100;
+color col = color(255,255,255);
+int stroke = 4;
 
 // DISPLAY
 
@@ -94,7 +95,6 @@ boolean clickType = true;
 
 // RECORDING: recording parameters for saving frames
 
-boolean recording = true;     // Whether to record simulation
 boolean recording = false;     // Whether to record simulation
 int fr = 60;                   // Frame rate to record at
 int intro = 1;                 // Length of intro (seconds) (== background screen without agents)
@@ -112,14 +112,13 @@ String angles = "sin";
 float scalor =2.5;
 
 //LABOUELABRUME : SOUND SYNC
-boolean sync = true;
 boolean sync = false;
 boolean txtFile = true;
-String source = "record";
 String source = "Carnaval";
 String audio = source + ".mp3";
 String txt = source + ".txt";
 
+boolean ampSpeed = true;
 // END OF CUSTOMIZABLE
 
 Canvas canvas;
@@ -140,20 +139,22 @@ boolean display = true;
 //Method choreography
 boolean choreography(int band) {
   if (band == 0) {
-    mode = "alignment";
     mode = "entropy";
     spawn = "spiral";
     vertical = true;
+    horizontal = true;
     angles = "log";
     scalor = 1.25;
     collisionCenterDir = true;
+    spawnCenterDir = true;
     palette = new color[]{color(242, 29, 129), color(190, 148, 91), color(82, 132, 60), color(31, 63, 43), color(233, 237, 96)};
     colorChange = "distance";
-    shape = "square";
-    pad = 0;
+    shape = "circle";
+    pad = 100;
     ogSpeed = 1;
     agentSize = 2;
-    canvas = new Canvas(shape, pad);
+    canvas = new Canvas(shape, pad, col, bc, stroke);
+    numAgents = 6000;
     return true;
   } else if (band ==1) {
     mode = "alignment";
@@ -168,7 +169,7 @@ boolean choreography(int band) {
     pad = 0;
     ogSpeed = 1;
     agentSize = 2;
-    canvas = new Canvas(shape, pad);
+    canvas = new Canvas(shape, pad, col, bc, stroke);
     numAgents = 2000;
     return false;
   } else if (band == 2) {
@@ -184,7 +185,7 @@ boolean choreography(int band) {
     colorChange = "distance";
     shape = "circle";
     pad = 0;
-    canvas = new Canvas(shape, pad);
+    canvas = new Canvas(shape, pad,col, bc, stroke);
     return false;
   } else {
     return false;
@@ -208,7 +209,7 @@ void setup() {
   if (recording && sync && !txtFile) {
     sync = false;
   }
-  canvas = new Canvas(shape, pad);
+  canvas = new Canvas(shape, pad,col, bc, stroke);
   size(800, 800);
   noStroke();
   rectMode(CENTER);
@@ -257,6 +258,8 @@ void draw() {
   }
   // Background color
   background(bc);
+  canvas.display();
+
   if (sync) {
     sound.update(frameCount);
     if (!txtFile) {
