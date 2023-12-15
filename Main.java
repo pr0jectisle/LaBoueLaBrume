@@ -9,11 +9,11 @@ import ddf.minim.effects.*;
 // AGENT: agents that move on the canvas
 
 // Number of agents
-int numAgents = 2000;
+int numAgents = 1;
 // Agent size
 float agentSize = 1;
 // Agent speed :
-float ogSpeed = 3;
+float ogSpeed = 1;
 // Agent acceleration
 float acc = 0.00;
 
@@ -114,9 +114,9 @@ String angles = "sin";
 float scalor =2.5;
 
 //LABOUELABRUME : SOUND SYNC
-boolean sync = false;
-boolean txtFile = false;
-String source = "Sainte";
+boolean sync = true;
+boolean txtFile = true;
+String source = "Carnaval";
 String audio = source + ".mp3";
 String txt = source + ".txt";
 
@@ -128,7 +128,7 @@ ArrayList<Canvas> tempCanvases = new ArrayList<Canvas>();
 ArrayList<Canvas> canvases = new ArrayList<Canvas>();
 ArrayList<Agent> agents = new ArrayList<Agent>();
 ArrayList<Pheromone> pheromones = new ArrayList<Pheromone>();
-ArrayList<Agent[]> agentsSync = new ArrayList<Agent[]>();
+ArrayList<Agent[][]> agentsSync = new ArrayList<Agent[][]>();
 
 int out = (totalLength-outro)*fr;
 int top = (totalLength) * fr;
@@ -191,7 +191,7 @@ boolean choreography(int band) {
     collisionCenterDir = true;
     spawnCenterDir = false;
     correctAngle = false;
-    palette = new color[]{color(155,255,255), color(100,100,100)};
+    palette = new color[]{color(155, 255, 255), color(100, 100, 100)};
     colorChange = "distance";
     shape = "circle";
     w = 800;
@@ -235,7 +235,7 @@ void spawn(int band) {
       }
     } else {
       for (int j=0; j<tempCanvases.size(); j++) {
-        agentsSync.get(band)[i] = new Agent(tempCanvases.get(j), mode, randomSpawn, i, numAgents, collisionCenterDir, spawnCenterDir, correctAngle, ogSpeed, acc, agentSize, spawn, detail, radius, palette, contour, colorChange, vertical, horizontal, angles, scalor);
+        agentsSync.get(band)[i][j] = new Agent(tempCanvases.get(j), mode, randomSpawn, i, numAgents, collisionCenterDir, spawnCenterDir, correctAngle, ogSpeed, acc, agentSize, spawn, detail, radius, palette, contour, colorChange, vertical, horizontal, angles, scalor);
       }
     }
   }
@@ -246,22 +246,21 @@ void setup() {
   if (recording && sync && !txtFile) {
     sync = false;
   }
+  col = bc;
   size(800, 800);
   //center = new PVector(width/3,height/3);
   //canvas = new Canvas(center,shape, w, h, col, bc, stroke);
-  if (spawnAtInit) {
-    if(choreography(0)){
+  if (spawnAtInit && !sync) {
+    if (choreography(0)) {
       spawn(-1);
     }
-    if(choreography(1)){
+    if (choreography(1)) {
       spawn(-1);
     }
-    
   }
   println("Welcome");
   printRules();
   if (sync) {
-
     Minim minim = new Minim(this);
     AudioPlayer player = minim.loadFile(audio);
     String input = audio;
@@ -277,7 +276,7 @@ void setup() {
     }
     for (int i=0; i<bands; i++) {
       if (choreography(i)) {
-        agentsSync.add(new Agent[numAgents]);
+        agentsSync.add(new Agent[numAgents][tempCanvases.size()]);
       }
     }
     st = new boolean[agentsSync.size()];
@@ -360,17 +359,21 @@ void draw() {
   } else { //Sync agent arraylist
     for (int i=0; i<st.length; i++) {
       if (st[i]) {
-        for (int j=agentsSync.get(i).length-1; j>=0; j--) {
-          Agent a = agentsSync.get(i)[j];
-          if (ampSpeed) {
-            a.speed = a.ogSpeed * speedFac;
-            pheroDecay = max(ogPheroDecay, ogPheroDecay * speedFac);
-          }
 
-          if (display) {
-            pheromones.add(new Pheromone(a.pos.copy(), pheroDecay, a.acc, a.ac, a.pc, a.contour, a.colorChange, a.diff, a.size));
-            a.update();
-            a.show();
+        for (int j=agentsSync.get(i).length-1; j>=0; j--) { //Num agents
+          for (int k=agentsSync.get(i)[0].length-1; k>=0; k--) {
+
+            Agent a = agentsSync.get(i)[j][k];
+            if (ampSpeed) {
+              a.speed = a.ogSpeed * speedFac;
+              pheroDecay = max(ogPheroDecay, ogPheroDecay * speedFac);
+            }
+
+            if (display) {
+              pheromones.add(new Pheromone(a.pos.copy(), pheroDecay, a.acc, a.ac, a.pc, a.contour, a.colorChange, a.diff, a.size));
+              a.update();
+              a.show();
+            }
           }
         }
       }
@@ -542,8 +545,12 @@ void printRules() {
       println("Press SPACEBAR turn around all agents");
       println("");
     } else {
-      println("Software is reacting live to audio : " + audio);
-      println("Sit back & enjoy");
+      if(!txtFile){
+        println("Software is reacting live to audio : " + audio);
+        println("Sit back & enjoy");
+      } else {
+        println("Software is reacting live to txt file : " + txt);
+      }
     }
   } else {
     print("Software is recording animation ");
