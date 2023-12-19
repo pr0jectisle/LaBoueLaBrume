@@ -29,7 +29,7 @@ class Canvas {
 
       if (shape!="circle") { //Bounce on square
 
-        if (a.pos.x <= center.x + w || a.pos.x>= center.x - w || a.pos.y<= center.y + h || a.pos.y>= center.y - w) {
+        if (a.pos.x <= center.x - w || a.pos.x>= center.x + w || a.pos.y<= center.y - h || a.pos.y>= center.y + h) {
           a.angle = atan2(a.pos.y - center.y, a.pos.x - center.x) + PI;
           a.bounced = true;
         }
@@ -42,7 +42,7 @@ class Canvas {
       }
     } else { //Agent bounces on wall
       if (shape!="circle") {
-        if (a.pos.x<= center.x + w || a.pos.x>= center.x -w) {//Vertical wall
+        if (a.pos.x<= center.x + w || a.pos.x>= center.x - w) {//Vertical wall
           a.angle = PI - a.angle;
           a.bounced = true;
         } else if (a.pos.y<= center.y + h|| a.pos.y>= center.y - h) {//Horizontal wall
