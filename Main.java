@@ -144,83 +144,80 @@ boolean display = true;
 //Method choreography
 boolean choreography(int band) {
   if (band == 0) {
-    tempCanvases = new ArrayList<Canvas>();
-    mode = "alignment";
-    spawn = "corners";
-    vertical = true;
-    horizontal = true;
-    angles = "cos";
-    scalor = 5.25;
-    collisionCenterDir = true;
-    spawnCenterDir = false;
-    correctAngle = false;
-    palette = new color[]{color(242, 29, 129), color(190, 148, 91), color(82, 132, 60), color(31, 63, 43), color(233, 237, 96)};
-    colorChange = "distance";
-    shape = "circle";
-    w = 200;
-    h = 200;
-    ogSpeed = 1;
-    agentSize = 2;
-    radius = 0;
-    detail = "on";
-    center = new PVector(width/4, height/4);
-    canvas = new Canvas(center, shape, w, h, col, bc, stroke);
-    tempCanvases.add(canvas);
-    canvases.add(canvas);
-    center = new PVector(3*width/4, height/4);
-    canvas = new Canvas(center, shape, w, h, col, bc, stroke);
-    tempCanvases.add(canvas);
-    canvases.add(canvas);
-    center = new PVector(width/4, 3*height/4);
-    canvas = new Canvas(center, shape, w, h, col, bc, stroke);
-    tempCanvases.add(canvas);
-    canvases.add(canvas);
-    center = new PVector(3*width/4, 3*height/4);
-    canvas = new Canvas(center, shape, w, h, col, bc, stroke);
-    tempCanvases.add(canvas);
-    canvases.add(canvas);
-    numAgents = 1500;
-    return true;
+    boolean doing = true;
+    if (doing) {
+      tempCanvases = new ArrayList<Canvas>();
+      mode = "alignment";
+      spawn = "corners";
+      vertical = true;
+      horizontal = true;
+      angles = "cos";
+      scalor = 5.25;
+      collisionCenterDir = true;
+      spawnCenterDir = false;
+      correctAngle = false;
+      palette = new color[]{color(242, 29, 129), color(190, 148, 91), color(82, 132, 60), color(31, 63, 43), color(233, 237, 96)};
+      colorChange = "distance";
+      shape = "circle";
+      w = 200;
+      h = 200;
+      ogSpeed = 1;
+      agentSize = 2;
+      radius = 0;
+      detail = "on";
+      center = new PVector(width/4, height/4);
+      canvas = new Canvas(center, shape, w, h, col, bc, stroke);
+      tempCanvases.add(canvas);
+      canvases.add(canvas);
+      center = new PVector(3*width/4, height/4);
+      canvas = new Canvas(center, shape, w, h, col, bc, stroke);
+      tempCanvases.add(canvas);
+      canvases.add(canvas);
+      center = new PVector(width/4, 3*height/4);
+      canvas = new Canvas(center, shape, w, h, col, bc, stroke);
+      tempCanvases.add(canvas);
+      canvases.add(canvas);
+      center = new PVector(3*width/4, 3*height/4);
+      canvas = new Canvas(center, shape, w, h, col, bc, stroke);
+      tempCanvases.add(canvas);
+      canvases.add(canvas);
+      numAgents = 1500;
+    }
+    return doing;
   } else if (band ==1) {
-    tempCanvases = new ArrayList<Canvas>();
-    mode = "alignment";
-    spawn = "center";
-    vertical = false;
-    horizontal = true;
-    angles = "log";
-    scalor = 1.25;
-    collisionCenterDir = true;
-    spawnCenterDir = false;
-    correctAngle = false;
-    palette = new color[]{color(155, 255, 255), color(100, 100, 100)};
-    colorChange = "distance";
-    shape = "circle";
-    w = 800;
-    h = 200;
-    ogSpeed = 1;
-    agentSize = 2;
-    radius = 0;
-    detail = "on";
-    center = new PVector(width/2, height/2);
-    canvas = new Canvas(center, shape, w, h, col, bc, stroke);
-    tempCanvases.add(canvas);
-    canvases.add(canvas);
-    numAgents = 3000;
-    return true;
+    boolean doing = true;
+    if (doing) {
+      tempCanvases = new ArrayList<Canvas>();
+      mode = "alignment";
+      spawn = "center";
+      vertical = false;
+      horizontal = true;
+      angles = "log";
+      scalor = 1.25;
+      collisionCenterDir = true;
+      spawnCenterDir = false;
+      correctAngle = false;
+      palette = new color[]{color(155, 255, 255), color(100, 100, 100)};
+      colorChange = "distance";
+      shape = "circle";
+      w = 800;
+      h = 200;
+      ogSpeed = 1;
+      agentSize = 2;
+      radius = 0;
+      detail = "on";
+      center = new PVector(width/2, height/2);
+      canvas = new Canvas(center, shape, w, h, col, bc, stroke);
+      tempCanvases.add(canvas);
+      canvases.add(canvas);
+      numAgents = 3000;
+    }
+    return doing;
   } else if (band == 2) {
-    mode = "entropy";
-    spawn = "center";
-    radius = 250;
-    palette = new color[]{  color(0, 0, 0), color(65, 65, 65), color(150, 150, 150)};
-    collisionCenterDir = true;
-    spawnCenterDir = false;
-    correctAngle = true;
-    ogSpeed = 5;
-    agentSize = 1;
-    colorChange = "distance";
-    shape = "circle";
-    canvas = new Canvas(center, shape, w, h, col, bc, stroke);
-    return false;
+    boolean doing = false;
+    if (doing) {
+    }
+    return doing;
   } else {
     return false;
   }
@@ -378,8 +375,12 @@ void draw() {
               int maxPitch = 200;
               int minPitch = 0;
               float p = sound.pitch;
-              if(p >= maxPitch){p = maxPitch-1;}
-              if(p < minPitch){p = minPitch;}
+              if (p >= maxPitch) {
+                p = maxPitch-1;
+              }
+              if (p < minPitch) {
+                p = minPitch;
+              }
               float fi = map(p, minPitch, maxPitch, 0, a.palette.length-1); //float index
               //println("Float index : " + fi);
               int ip = floor(fi);
@@ -564,7 +565,7 @@ void printRules() {
       println("Press SPACEBAR turn around all agents");
       println("");
     } else {
-      if(!txtFile){
+      if (!txtFile) {
         println("Software is reacting live to audio : " + audio);
         println("Sit back & enjoy");
       } else {
