@@ -115,7 +115,7 @@ float scalor =2.5;
 
 //LABOUELABRUME : SOUND SYNC
 boolean sync = true;
-boolean txtFile = true;
+boolean txtFile = false;
 String source = "Carnaval";
 String audio = source + ".mp3";
 String txt = source + ".txt";
@@ -231,11 +231,11 @@ void spawn(int band) {
   for (int i = 0; i < numAgents; i++) {
     if (!sync) {
       for (int j=0; j<tempCanvases.size(); j++) {
-        agents.add(new Agent(tempCanvases.get(j), mode, randomSpawn, i, numAgents, collisionCenterDir, spawnCenterDir, correctAngle, ogSpeed, acc, agentSize, spawn, detail, radius, palette, contour, colorChange, vertical, horizontal, angles, scalor));
+        agents.add(new Agent(tempCanvases.get(j), mode, randomSpawn, i, numAgents, collisionCenterDir, spawnCenterDir, correctAngle, ogSpeed, acc, agentSize, spawn, detail, radius, palette, contour, colorChange, vertical, horizontal, angles, scalor, ampSpeed));
       }
     } else {
       for (int j=0; j<tempCanvases.size(); j++) {
-        agentsSync.get(band)[i][j] = new Agent(tempCanvases.get(j), mode, randomSpawn, i, numAgents, collisionCenterDir, spawnCenterDir, correctAngle, ogSpeed, acc, agentSize, spawn, detail, radius, palette, contour, colorChange, vertical, horizontal, angles, scalor);
+        agentsSync.get(band)[i][j] = new Agent(tempCanvases.get(j), mode, randomSpawn, i, numAgents, collisionCenterDir, spawnCenterDir, correctAngle, ogSpeed, acc, agentSize, spawn, detail, radius, palette, contour, colorChange, vertical, horizontal, angles, scalor, ampSpeed);
       }
     }
   }
@@ -364,7 +364,7 @@ void draw() {
           for (int k=agentsSync.get(i)[0].length-1; k>=0; k--) {
 
             Agent a = agentsSync.get(i)[j][k];
-            if (ampSpeed) {
+            if (a.ampSpeed) {
               a.speed = a.ogSpeed * speedFac;
               pheroDecay = max(ogPheroDecay, ogPheroDecay * speedFac);
             }
