@@ -115,12 +115,13 @@ float scalor =2.5;
 
 //LABOUELABRUME : SOUND SYNC
 boolean sync = true;
-boolean txtFile = false;
+boolean txtFile = true;
 String source = "Carnaval";
 String audio = source + ".mp3";
 String txt = source + ".txt";
 
 boolean ampSpeed = true;
+boolean pitchCol = true;
 // END OF CUSTOMIZABLE
 
 Canvas canvas;
@@ -231,11 +232,11 @@ void spawn(int band) {
   for (int i = 0; i < numAgents; i++) {
     if (!sync) {
       for (int j=0; j<tempCanvases.size(); j++) {
-        agents.add(new Agent(tempCanvases.get(j), mode, randomSpawn, i, numAgents, collisionCenterDir, spawnCenterDir, correctAngle, ogSpeed, acc, agentSize, spawn, detail, radius, palette, contour, colorChange, vertical, horizontal, angles, scalor, ampSpeed));
+        agents.add(new Agent(tempCanvases.get(j), mode, randomSpawn, i, numAgents, collisionCenterDir, spawnCenterDir, correctAngle, ogSpeed, acc, agentSize, spawn, detail, radius, palette, contour, colorChange, vertical, horizontal, angles, scalor, ampSpeed, pitchCol));
       }
     } else {
       for (int j=0; j<tempCanvases.size(); j++) {
-        agentsSync.get(band)[i][j] = new Agent(tempCanvases.get(j), mode, randomSpawn, i, numAgents, collisionCenterDir, spawnCenterDir, correctAngle, ogSpeed, acc, agentSize, spawn, detail, radius, palette, contour, colorChange, vertical, horizontal, angles, scalor, ampSpeed);
+        agentsSync.get(band)[i][j] = new Agent(tempCanvases.get(j), mode, randomSpawn, i, numAgents, collisionCenterDir, spawnCenterDir, correctAngle, ogSpeed, acc, agentSize, spawn, detail, radius, palette, contour, colorChange, vertical, horizontal, angles, scalor, ampSpeed, pitchCol);
       }
     }
   }
@@ -248,8 +249,7 @@ void setup() {
   }
   col = bc;
   size(800, 800);
-  //center = new PVector(width/3,height/3);
-  //canvas = new Canvas(center,shape, w, h, col, bc, stroke);
+
   if (spawnAtInit && !sync) {
     if (choreography(0)) {
       spawn(-1);
@@ -373,6 +373,25 @@ void draw() {
               pheromones.add(new Pheromone(a.pos.copy(), pheroDecay, a.acc, a.ac, a.pc, a.contour, a.colorChange, a.diff, a.size));
               a.update();
               a.show();
+            }
+            if (a.pitchCol) {
+              int maxPitch = 200;
+              int minPitch = 0;
+              float p = sound.pitch;
+              if(p >= maxPitch){p = maxPitch-1;}
+              if(p < minPitch){p = minPitch;}
+              float fi = map(p, minPitch, maxPitch, 0, a.palette.length-1); //float index
+              //println("Float index : " + fi);
+              int ip = floor(fi);
+              int ia = ip+1;
+              //println("phero index : " + ip);
+              //println("agent index : " + ia);
+              if (ip >= a.palette.length) {
+                ip= a.palette.length-1;
+              }
+              a.diff = (fi - ip);
+              a.pc = a.palette[ia];
+              a.ac = a.palette[ip];
             }
           }
         }

@@ -40,8 +40,9 @@ class Agent {
   float scalor;
   
   boolean ampSpeed;
+  boolean pitchCol;
 
-  Agent(Canvas canvas, String mode, boolean randomSpawn, float num, float total, boolean collisionCenterDir, boolean spawnCenterDir, boolean correctAngle, float speed, float acc, float size, String spawn, String detail, int radius, color[] palette, color contour, String colorChange, boolean vertical, boolean horizontal, String angles, float scalor, boolean ampSpeed) {
+  Agent(Canvas canvas, String mode, boolean randomSpawn, float num, float total, boolean collisionCenterDir, boolean spawnCenterDir, boolean correctAngle, float speed, float acc, float size, String spawn, String detail, int radius, color[] palette, color contour, String colorChange, boolean vertical, boolean horizontal, String angles, float scalor, boolean ampSpeed, boolean pitchCol) {
     this.canvas = canvas;
     this.mode = mode;
   
@@ -71,6 +72,8 @@ class Agent {
     this.scalor = scalor;
 
     this.ampSpeed = ampSpeed;
+    this.pitchCol = pitchCol;
+    
     if (mode == "entropy") {
       if (randomSpawn) {
         this.angle = random(TAU);
